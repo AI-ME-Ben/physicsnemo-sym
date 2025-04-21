@@ -17,6 +17,7 @@ name: Documentation Request
 description: Request updates or additions to PhysicsNeMo Symbolic documentation
 title: "📚[DOC]: "
 labels: ["documentation", "? - Needs Triage"]
+type: "Task"
 
 body:
   - type: markdown

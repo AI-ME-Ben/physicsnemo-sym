@@ -17,6 +17,7 @@ name: Feature Request
 description: Request new or improved functionality or changes to existing PhysicsNeMo Symbolic functionality
 title: "🚀[FEA]: "
 labels: ["enhancement", "? - Needs Triage"]
+type: "Enhancement"
 
 body:
   - type: markdown

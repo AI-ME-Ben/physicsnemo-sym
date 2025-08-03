@@ -62,7 +62,7 @@ def run(cfg: PhysicsNeMoConfig) -> None:
     interior_mesh = Tessellation.from_stl(
         point_path + "/aneurysm_closed.stl", airtight=True
     )
-
+    
     # params
     nu = 0.025
     inlet_vel = 1.5
@@ -196,16 +196,17 @@ def run(cfg: PhysicsNeMoConfig) -> None:
         lambda_weighting={"normal_dot_vel": 0.1},
     )
     domain.add_constraint(integral_continuity, "integral_continuity_2")
-        
-    # add inferencer data
+    
+    # 透過 Inferencer來輸出vti ，可以用來畫流線
+    # 建立 VTK 匯出物件
     vtk_obj = VTKUniformGrid(
-        bounds=[(0, 2 * np.pi), (0, 2 * np.pi), (0, 2 * np.pi)],
-        npoints=[256, 128, 256],
+        bounds=[(-7, 7), (-7, 7), (-7, 7)],
+        npoints=[256, 256, 256],
         export_map={"u": ["u", "v", "w"], "p": ["p"]},
     )
 
     def mask_fn(x, y, z):
-        sdf = interior_mesh.geo.sdf({"x": x, "y": y, "z": z}, {})
+        sdf = interior_mesh.sdf({"x": x, "y": y, "z": z}, {})
         return sdf["sdf"] < 0
 
     grid_inference = PointVTKInferencer(
@@ -216,9 +217,10 @@ def run(cfg: PhysicsNeMoConfig) -> None:
         mask_fn=mask_fn,
         mask_value=np.nan,
         requires_grad=False,
-        batch_size=100000,
+        batch_size=50000,  # 減少batch size
     )
-    flow_domain.add_inferencer(grid_inference, "grid_inference")
+    domain.add_inferencer(grid_inference, "grid_inference")
+    # plot streamline
 
     # add validation data
     file_path = "./openfoam/aneurysm_parabolicInlet_sol0.csv"
